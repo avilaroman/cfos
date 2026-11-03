@@ -53,4 +53,47 @@ El comando de despliegue genera archivos temporales de Wrangler a partir de conf
 
 Existe un flujo de despliegue gestionado que implementa la versión original (upstream) directamente en tu cuenta de Cloudflare, sin necesidad de este repositorio. No requiere compilación local, configura automáticamente el inicio de sesión y tus correos electrónicos de administrador, y permite personalizar toda la interfaz `/admin`: nombre del sitio, logotipo, color de acento, anuncios, instrucciones para los agentes, blueprints destacados y los conectores a los que pueden acceder tus usuarios. Los Gatekeepers integrados, como los de GitHub o Google, pueden configurarse utilizando tus propias credenciales OAuth.
 
-<a href="https://os.cloudflare.app/d
+### Piense en una suite ofimática
+
+La experiencia de usuario básica de Cloudflare OS es similar a la de una suite ofimática en línea, como Google Docs o MS Office. Pero imagine que, en lugar de un conjunto fijo de tipos de archivo (documentos, hojas de cálculo, presentaciones), cada archivo —o «Gadget»— sea, en esencia, su propia aplicación personalizada, creada por una IA para satisfacer exactamente sus necesidades.
+
+Al igual que los documentos de oficina, cada «gadget» es privado por defecto, pero puede compartirse —de forma segura— para colaborar con su equipo o sus amigos.
+
+Al igual que los documentos de oficina, puede tener miles de ellos. Puede crearlos cuando quiera.
+
+Al igual que los documentos de oficina, puede partir de «plantillas», a las que llamamos «Blueprints» (planos). Pero, mientras que una plantilla de oficina es simplemente contenido, un «Blueprint» define una aplicación completa.
+
+Al igual que con los documentos de oficina, puede crear nuevas plantillas («blueprints») a partir de sus propios documentos («gadgets») y compartirlas con otros. Sin embargo, al hacerlo, está compartiendo el código de toda una aplicación.
+
+### Es, en cierto modo, un sistema operativo
+
+El uso del término «sistema operativo» (OS) no es *solo* una estrategia de marketing. A nivel técnico, Cloudflare OS es, de hecho, análogo a un sistema operativo.
+
+| Sistema operativo convencional | Cloudflare OS              |
+|--------------------------------|----------------------------|
+| kernel (núcleo)                 | packages/workshop-backend  |
+| controladores (drivers)          | packages/gatekeeper-*      |
+| shell (intérprete de comandos) | packages/workshop-frontend |
+| procesos                       | gadgets                    |
+| ejecutables                    | blueprints                 |
+| usuarios                       | usuarios                   |
+| ACL (listas de control de acceso)| permisos compartidos      |
+| ??? | agentes                    |
+
+Nuestro «kernel» se encuentra en el paquete `workshop-backend`. Este componente realiza, efectivamente, muchas funciones similares a las de los núcleos de los sistemas operativos reales: conecta a los usuarios con programas y dispositivos (lo que denominamos «Gadgets» y «Gatekeepers»), al tiempo que garantiza la seguridad mediante el aislamiento de aplicaciones (*sandboxing*) y la aplicación de controles de acceso.
+
+En esta analogía, los «Gatekeepers» —que conectan a los usuarios y agentes con servicios externos— funcionan como los controladores (*drivers*), que conectan a los usuarios y programas con dispositivos externos. Hay un aspecto que los sistemas operativos tradicionales no gestionan adecuadamente hoy en día, pero que Cloudflare OS sí aborda: los agentes de IA. Si lo analizamos, se trata de una funcionalidad que, en realidad, falta en los sistemas operativos convencionales. Consideramos que los agentes de IA no pueden tratarse simplemente como usuarios; deben rendir cuentas ante un usuario humano y, al mismo tiempo, contar con sus propios permisos restringidos. Estos agentes operan escribiendo fragmentos de código y ejecutándolos al instante. El modelo de seguridad idóneo para todo esto es la «seguridad basada en capacidades» (*capability-based security*), en lugar de las listas de control de acceso. ¿Se entiende a qué me refiero? Quizás los sistemas operativos tradicionales también deberían ofrecer un tratamiento especial a los agentes de IA.
+
+### Construido sobre Workers, por el equipo de Workers
+
+Cloudflare OS está desarrollado sobre [Cloudflare Workers](https://workers.cloudflare.com) y hace un uso intensivo de [Durable Objects](https://developers.cloudflare.com/durable-objects/), [Dynamic Workers](https://blog.cloudflare.com/dynamic-workers/) y, en particular, [Facets](https://blog.cloudflare.com/durable-object-facets-dynamic-workers/). Cada espacio de trabajo (*workspace*) constituye un *Durable Object* independiente; cada *Gadget* se ejecuta en un *Dynamic Worker Facet*; y los *Gatekeepers* instalan *facets* en cada espacio de trabajo para gestionar el acceso a servicios remotos.
+
+De hecho, Cloudflare OS ha sido creado por las mismas personas que desarrollaron Workers. Utiliza funcionalidades de vanguardia del *runtime* de Workers; es más, *Dynamic Workers*, *Facets* y otras características se añadieron al *runtime* específicamente para dar soporte a Cloudflare OS, con más novedades por llegar. Analizar el código fuente de Cloudflare OS es una excelente forma de comprender cómo el equipo responsable del *runtime* de Workers concibe el uso de esta plataforma.
+
+El hecho de estar construido sobre Workers no implica que Cloudflare OS solo pueda ejecutarse en la infraestructura de Cloudflare. De hecho, [`workerd` —el *runtime* de Cloudflare Workers— es de código abierto](https://github.com/cloudflare/workerd), lo que permite ejecutar Cloudflare OS íntegramente sobre él en sus propios servidores.
+
+Aunque existan conexiones a cuentas externas, los agentes y los *gadgets* no obtienen acceso automático a ellas.
+
+En su lugar, debes «presentar» cada agente (o *gadget*) a los recursos específicos a los que deseas que tenga acceso. Por ejemplo, puedes presentar un repositorio de GitHub pegando su enlace, o bien haciendo clic en «añadir recurso» y seleccionándolo a través de la interfaz de usuario. Asimismo, un agente puede solicitar acceso a un recurso que considere necesario; tú podrás entonces conceder o denegar dicha solicitud.
+
+Esto difiere de la mayoría de los entornos para agentes, en los que los servidores MCP se configuran de antemano, lo que pone a disposición del agente un acceso general a todos tus servicios en cada conversación. El enfoque basado en la concesión de permisos específicos garantiza que cada agente solo tenga acceso a lo que realmente necesita para realizar la tarea en cuestión.
