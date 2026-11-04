@@ -22,10 +22,14 @@ Implementa una versión específica (fijada) de Cloudflare OS, con control total
 Con [Node.js 24.19 o una versión posterior](https://nodejs.org/) y [pnpm 11.17](https://pnpm.io/installation) instalados:
 
 ```sh
-npx cf-os init my-os
+git clone https://github.com/avilaroman/cfos.git
+cd cfos
+npm i -g pnpm
+pnpm install --pm-on-fail=ignore
+npx cf-os init tuos
 ```
 
-Este comando clona la plantilla inicial, realiza la instalación, ofrece crear un repositorio privado en GitHub y subir el código, configura el inicio de sesión, Workers y AI Gateway, genera el archivo `deployment.jsonc` y ofrece realizar el despliegue. La sección [Despliegue](#deploy) detalla cada paso, incluyendo el procedimiento manual, mientras que [Personalización](#customization) explica qué elementos se pueden modificar posteriormente. El resto del contenido de esta página es opcional.
+Este comando clona la plantilla inicial "tuos" que lo puedes cambiar por tu nombre, realiza la instalación, ofrece crear un repositorio privado en GitHub y subir el código, configura el inicio de sesión, Workers y AI Gateway, genera el archivo `deployment.jsonc` y ofrece realizar el despliegue. La sección [Despliegue](#deploy) detalla cada paso, incluyendo el procedimiento manual, mientras que [Personalización](#customization) explica qué elementos se pueden modificar posteriormente. El resto del contenido de esta página es opcional.
 
 ## Visión general
 
